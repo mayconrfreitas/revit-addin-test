@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+	<Name>RevitAddinTest</Name>
+	<Assembly>RevitAddinTest\RevitAddinTest.dll</Assembly>
+	<FullClassName>RevitAddinTest.Application.RevitApp</FullClassName>
+	<ClientId>792B2D1E-662F-4FA2-9131-2362354852D3</ClientId>
+	<VendorId>maycon.freitas</VendorId>
+	<VendorDescription>Maycon Freitas, maycon.freitas@aecoder.com.br</VendorDescription>
+  </AddIn>
+</RevitAddIns>
