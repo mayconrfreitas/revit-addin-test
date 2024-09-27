@@ -22,6 +22,8 @@ namespace RevitAddinTest.Services
 			_doc = _uidoc.Document;
 		}
 
+		// I moved the extraction and processing of the room data to a separate service
+		// to keep the command class clean and organized
 		public List<RoomModel> ExtractAndProcessRoomData()
 		{
 			List<RoomModel> roomModels = new List<RoomModel>();

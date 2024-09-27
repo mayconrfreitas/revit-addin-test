@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace RevitAddinTest.ViewModels
 {
+	// I created this BaseViewModel to implement INotifyPropertyChanged just once
+	// since all ViewModels will inherit from this class
 	public class BaseViewModel : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;

@@ -12,12 +12,14 @@ namespace RevitAddinTest.Helpers
 {
 	public static class RevitAPIHelper
 	{
+		// Check if volume calculation is enabled
 		public static bool GetVolumeCalculationSettingsDefinition(Document doc)
 		{
 			AreaVolumeSettings settings = AreaVolumeSettings.GetAreaVolumeSettings(doc);
 			return settings.ComputeVolumes;
 		}
 
+		// Enable/disable volume calculation
 		public static void SetVolumeCaculation(Document doc, bool enabled = true)
 		{
 			try
@@ -44,7 +46,7 @@ namespace RevitAddinTest.Helpers
 			}
 		}
 
-
+		// Zoom to elements when double clicking on the room row
 		public static void ZoomToElements(ExternalCommandData commandData, List<Element> elements)
 		{
 			try
@@ -61,7 +63,7 @@ namespace RevitAddinTest.Helpers
             }
 		}
 
-
+		// Get all family instances inside a room
 		public static List<FamilyInstance> GetElementsInsideRoom(Document doc, Room room, double tolerance = 0)
 		{
             // Get all family instances in the room, excluding doors/windows/voids

@@ -13,6 +13,7 @@ namespace RevitAddinTest.Services
 {
 	public class ReportService
 	{
+        // Class to export the CSV file
 		public void GenerateRoomDataReport(List<RoomModel> rooms)
 		{
             string filePath = "";
@@ -25,6 +26,7 @@ namespace RevitAddinTest.Services
                 }
 
                 StringBuilder csvContent = new StringBuilder();
+                //Add the headers
                 csvContent.AppendLine("Room Name;Room Number;Area (sqm);Volume (cubic m);Occupied Volume (cubic m);Utilization Ratio (%);Utilization Category");
 
                 foreach (var room in rooms)
@@ -33,6 +35,7 @@ namespace RevitAddinTest.Services
                     csvContent.AppendLine(line);
                 }
 
+                // Check if the file has the .csv extension and add it if it doesn't
                 if (!filePath.EndsWith(".csv"))
                 {
                     filePath += ".csv";

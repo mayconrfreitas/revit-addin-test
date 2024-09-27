@@ -21,8 +21,8 @@ namespace RevitAddinTest.ViewModels
 		private readonly RoomDataExtractionService _dataExtractService;
 		private readonly ReportService _reportService;
 		private readonly ExternalCommandData _commandData;
-		private ObservableCollection<RoomModel> _rooms;
 
+		private ObservableCollection<RoomModel> _rooms;
 		public ObservableCollection<RoomModel> Rooms
 		{
 			get { return _rooms; }
@@ -35,7 +35,6 @@ namespace RevitAddinTest.ViewModels
 
 		public ICommand ZoomToRoomCommand { get; }
 		public ICommand ExportCsvCommand { get; }
-		//public ICommand ExportExcelCommand { get; }
 
 		public RoomDataExtractionViewModel(ExternalCommandData commandData)
 		{
@@ -72,6 +71,7 @@ namespace RevitAddinTest.ViewModels
 			
 		}
 
+		// Zoom to the room element when double clicking on the room row
 		private void ExecuteZoomToRoomCommand(object parameter)
         {
             RoomModel room = parameter as RoomModel;
@@ -81,6 +81,7 @@ namespace RevitAddinTest.ViewModels
             }
         }
 
+		// Button command to export room data to CSV
         private void ExecuteExportCsvCommand(object parameter)
 		{
 			_reportService.GenerateRoomDataReport(this.Rooms.ToList());

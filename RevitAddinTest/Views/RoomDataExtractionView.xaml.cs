@@ -32,6 +32,8 @@ namespace RevitAddinTest.Views
 			this.Close();
 		}
 
+        // Here I'm handling the double click event on the DataGrid
+        // and calling the ICommand ZoomToRoomCommand from the ViewModel
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;

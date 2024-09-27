@@ -10,6 +10,7 @@ namespace RevitAddinTest.Helpers
 {
 	public static class WindowHelper
 	{
+		// Set Revit as owner of the window so 
 		public static void SetRevitAsOwner(Window window)
 		{
 			IntPtr revitHandle = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
