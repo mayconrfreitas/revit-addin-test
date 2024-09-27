@@ -7,7 +7,7 @@
 		mc:Ignorable="d" 
 		Title="Room Data Extraction"
 		Height="450"
-		Width="800">
+		Width="840">
 	<Grid Margin="10">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -24,22 +24,31 @@
 				  ItemsSource="{Binding Rooms}" 
 				  AutoGenerateColumns="False" 
 				  CanUserAddRows="False" 
-				  Margin="0,10,0,10">
+				  Margin="0,10,0,10"
+                  SelectedItem="{Binding SelectedRoom}"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Room Name"
-									Binding="{Binding Name}" />
+									Binding="{Binding Name}"
+                                    IsReadOnly="True"/>
 				<DataGridTextColumn Header="Room Number"
-									Binding="{Binding Number}" />
+									Binding="{Binding Number}"
+                                    IsReadOnly="True"/>
 				<DataGridTextColumn Header="Area (sqm)"
-									Binding="{Binding Area, StringFormat=N2}" />
+									Binding="{Binding Area, StringFormat=N2}"
+                                    IsReadOnly="True"/>
 				<DataGridTextColumn Header="Volume (cubic m)"
-									Binding="{Binding Volume, StringFormat=N2}" />
+									Binding="{Binding Volume, StringFormat=N2}"
+                                    IsReadOnly="True"/>
 				<DataGridTextColumn Header="Occupied Volume (cubic m)" 
-									Binding="{Binding OccupiedVolume, StringFormat=N2}" />
+									Binding="{Binding OccupiedVolume, StringFormat=N2}"
+                                    IsReadOnly="True"/>
 				<DataGridTextColumn Header="Utilization Ratio (%)" 
-									Binding="{Binding UtilizationRatio, StringFormat=P2}" />
+									Binding="{Binding UtilizationRatio, StringFormat=P2}"
+                                    IsReadOnly="True"/>
 				<DataGridTextColumn Header="Utilization Category" 
-									Binding="{Binding UtilizationCategory}" />
+									Binding="{Binding UtilizationCategory}"
+                                    IsReadOnly="True"/>
 			</DataGrid.Columns>
 		</DataGrid>
 
@@ -47,15 +56,11 @@
 					Orientation="Horizontal" 
 					HorizontalAlignment="Right" 
 					Margin="0,10,0,0">
-			<Button Content="Export to CSV" 
+            <Button Content="Export to CSV" 
 					Width="100" 
 					Margin="0,0,5,0" 
 					Command="{Binding ExportCsvCommand}" />
-			<!--<Button Content="Export to Excel" 
-					Width="100" 
-					Margin="0,0,5,0" 
-					Command="{Binding ExportExcelCommand}" />-->
-			<Button Content="Cancel" 
+            <Button Content="Cancel" 
 					Width="75" 
 					Click="Close_Click" />
 		</StackPanel>

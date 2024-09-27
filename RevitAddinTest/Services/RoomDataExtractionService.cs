@@ -28,26 +28,63 @@ namespace RevitAddinTest.Services
 			try
 			{
 				// Check if volume calculation is enabled
-				bool wasCalculatingVolumes = RevitAPIHelper.GetVolumeCalculation(_doc);
+				bool wasCalculatingVolumes = RevitAPIHelper.GetVolumeCalculationSettingsDefinition(_doc);
 
 				// Enable volume calculation if it is not enabled
                 if (!wasCalculatingVolumes)
 				{
-					RevitAPIHelper.SetVolumeCaculation(_doc);
+					TaskDialog taskDialog = new TaskDialog("Volume Calculation");
+					taskDialog.MainInstruction = "Volume calculation is not enabled. Do you want to enable it?";
+					taskDialog.CommonButtons = TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No;
+					TaskDialogResult result = taskDialog.Show();
+
+					if (result == TaskDialogResult.Yes)
+                    {
+                        RevitAPIHelper.SetVolumeCaculation(_doc);
+                    }
+					else
+                    {
+                        throw new Exception("Volume calculation is required to calculate occupied volume.");
+                    }
 				}
 
-				// Collect all rooms
-				List<Element> roomCollector = new FilteredElementCollector(_doc)
-					.OfCategory(BuiltInCategory.OST_Rooms)
-					.WhereElementIsNotElementType()
-					.ToElements()
-					.ToList();
+                List<Element> rooms = new List<Element>();
 
-				foreach (Element roomElement in roomCollector)
+                List <ElementId> selectedRooms = _uidoc.Selection
+					.GetElementIds()
+					.Where(id => _doc.GetElement(id) is Room)
+					.ToList();
+                // Check if there's any room selected
+                if (selectedRooms.Count > 0)
+				{
+					rooms = selectedRooms.Select(id => _doc.GetElement(id)).ToList();
+				}
+				else
+				{
+                    // Collect all rooms
+                    rooms = new FilteredElementCollector(_doc)
+                        .OfCategory(BuiltInCategory.OST_Rooms)
+                        .WhereElementIsNotElementType()
+                        .ToElements()
+                        .ToList();
+                }
+
+				foreach (Element roomElement in rooms)
 				{
 					Room room = roomElement as Room;
-					if (room != null)
+					// As I already turned on the volume calculation,
+					// I can safely assume that the room has volume and area,
+					// otherwise, it's not placed, so I'm skipping it for this exercise
+					// I could also set an error message to the user
+					if (room != null && room.Volume > 0 && room.Area > 0)
 					{
+
+						// I noticed in the model that most rooms have the same Level and Upper Limit (level)
+						// and Limit Offset is heigher than the ceiling height
+						// here I would check this and maybe warn the user about it, asking if he wants to proceed
+						// Or fix it automatically
+						// But for this exercise, I'm skipping this part
+
 						RoomModel roomModel = new RoomModel
 						{
 							Name = room.Name,
@@ -66,15 +103,12 @@ namespace RevitAddinTest.Services
 						// Categorize utilization
 						roomModel.UtilizationCategory = CategorizeUtilization(roomModel.UtilizationRatio);
 
+						// Store the room element
+						roomModel.RoomElement = room;
+
 						roomModels.Add(roomModel);
 					}
 				}
-
-				// Disable volume calculation if it was not enabled
-                if (!wasCalculatingVolumes)
-                {
-                    RevitAPIHelper.SetVolumeCaculation(_doc, false);
-                }
             }
 			catch (Exception e)
 			{
@@ -83,6 +117,20 @@ namespace RevitAddinTest.Services
 				taskDialog.MainContent = e.Message + "\n" + e.StackTrace;
 				taskDialog.Show();
 			}
+
+			// Create the Total Room Model
+			RoomModel totalRoomModel = new RoomModel
+            {
+                Name = "TOTAL",
+                Number = "-",
+                Area = roomModels.Sum(r => r.Area),
+                Volume = roomModels.Sum(r => r.Volume),
+                OccupiedVolume = roomModels.Sum(r => r.OccupiedVolume),
+                UtilizationRatio = roomModels.Sum(r => r.OccupiedVolume) / roomModels.Sum(r => r.Volume),
+                UtilizationCategory = CategorizeUtilization(roomModels.Sum(r => r.OccupiedVolume) / roomModels.Sum(r => r.Volume))
+            };
+
+			roomModels.Add(totalRoomModel);
 			
 
 			return roomModels;

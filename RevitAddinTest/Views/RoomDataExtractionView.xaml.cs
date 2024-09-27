@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RevitAddinTest.Models;
+using RevitAddinTest.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,5 +31,21 @@ namespace RevitAddinTest.Views
 		{
 			this.Close();
 		}
-	}
+
+        private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            RoomModel selectedRoom = dataGrid.SelectedItem as RoomModel;
+
+            if (selectedRoom != null)
+            {
+                RoomDataExtractionViewModel viewModel = this.DataContext as RoomDataExtractionViewModel;
+                if (viewModel != null && viewModel.ZoomToRoomCommand.CanExecute(selectedRoom))
+                {
+                    viewModel.ZoomToRoomCommand.Execute(selectedRoom);
+                }
+            }
+
+        }
+    }
 }

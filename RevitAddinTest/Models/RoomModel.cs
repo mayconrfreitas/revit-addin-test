@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.Revit.DB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +16,6 @@ namespace RevitAddinTest.Models
 		public double OccupiedVolume { get; set; }
 		public double UtilizationRatio { get; set; }
 		public string UtilizationCategory { get; set; }
+		public Element RoomElement { get; set; }
 	}
 }
