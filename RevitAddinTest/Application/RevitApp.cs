@@ -29,7 +29,7 @@ namespace RevitAddinTest.Application
 					"RevitAddinTest.Commands.RoomDataExtractionCommand");
 
 				roomDataButtonData.ToolTip = "Extract room data from the active document.";
-				roomDataButtonData.LongDescription = "This command extracts room data from the active document and generates a report.";
+				roomDataButtonData.LongDescription = "This command extracts room data from the active document and generates a report in CSV.";
 				roomDataButtonData.LargeImage = new BitmapImage(new Uri("pack://application:,,,/RevitAddinTest;component/Resources/Icons/room-data-extraction-24.png"));
 				roomDataButtonData.Image = new BitmapImage(new Uri("pack://application:,,,/RevitAddinTest;component/Resources/Icons/room-data-extraction-16.png"));
 
@@ -45,7 +45,7 @@ namespace RevitAddinTest.Application
 					"RevitAddinTest.Commands.ImportObjGeometryCommand");
 
 				importObjButtonData.ToolTip = "Import OBJ geometry into the active document.";
-				importObjButtonData.LongDescription = "This command imports OBJ geometry into the active document.";
+				importObjButtonData.LongDescription = "This command imports OBJ geometry into the active document and parses it to Revit geometry.";
 				importObjButtonData.LargeImage = new BitmapImage(new Uri("pack://application:,,,/RevitAddinTest;component/Resources/Icons/import-obj-geometry-24.png"));
 				importObjButtonData.Image = new BitmapImage(new Uri("pack://application:,,,/RevitAddinTest;component/Resources/Icons/import-obj-geometry-16.png"));
 
