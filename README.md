@@ -10,7 +10,7 @@ Code developed for the Revit Addin test, proposed by Snaptrude.
 	- [Task 2: Import OBJ Geometry into Revit](#task-2-import-obj-geometry-into-revit)
 - [Solution](#solution)
 	- [Addin Structure](#addin-structure)
-	- [Minhas Abordagens para Resolver os Problemas](#minhas-abordagens-para-resolver-os-problemas)
+	- [My Approaches to Solving the Problems](#my-approaches-to-solving-the-problems)
 		- [Task 1: Room Data Extraction](#task-1-room-data-extraction)
 		- [Task 2: Import OBJ Geometry into Revit](#task-2-import-obj-geometry-into-revit)
 
@@ -43,6 +43,8 @@ Create a Revit add-in using **Revit API** that extracts room data from a sample 
 5. Generate a report, either in CSV or Excel format, that lists all rooms, their total area and volume, occupied volume, space utilization ratios, and utilization categorization.
 
 
+🚀 [Go to Solution](#task-1-room-data-extraction-1) 🚀
+
 ### Task 2: Import OBJ Geometry into Revit
 
 Create a Revit add-in that imports a simple OBJ file (check attachment) containing primitive objects into a Revit project as native Revit geometry. The script should:
@@ -57,6 +59,8 @@ Create a Revit add-in that imports a simple OBJ file (check attachment) containi
 
 > [!CAUTION]   
 > Do not use any intermediary library to parse the data.
+
+🚀 [Go to Solution](#task-2-import-obj-geometry-into-revit-1) 🚀
 
 ## Solution
 
@@ -73,96 +77,124 @@ The addin was divided into the following structure:
 
 ### Addin Structure
 
-[📦RevitAddinText](./RevitAddinTest/) `Pasta raiz do projeto`  
- ┣ [📂AddinManifest](./RevitAddinTest/AddinManifest/) `Pasta com o manifesto do plugin`   
- ┃ ┗ [📜RevitAddinTest.addin](./RevitAddinTest/AddinManifest/RevitAddinTest.addin) `Manifesto do plugin`  
- ┣ [📂Application](./RevitAddinTest/Application/) `Arquivos referentes à aplicação`  
- ┃ ┣ [📜App.xaml](./RevitAddinTest/Application/App.xaml) `Configuração da applicação WPF do projeto`  
- ┃ ┣ [📜App.xaml.cs](./RevitAddinTest/Application/App.xaml.cs)  
- ┃ ┗ [📜RevitApp.cs](./RevitAddinTest/Application/RevitApp.cs) `Aplicação do Revit (IExternalApplication)`  
- ┣ [📂Commands](./RevitAddinTest/Commands/) `Arquivos de comando do Revit (IExternalCommand) e WPF (ICommand)`  
- ┃ ┣ 📜ImportObjGeometryCommand.cs  
- ┃ ┣ 📜RelayCommand.cs  
- ┃ ┗ 📜RoomDataExtractionCommand.cs   
- ┣ 📂Data  
- ┃ ┣ 📜Snaptrude.rvt  
- ┃ ┗ 📜snaptrude.obj  
- ┣ 📂Helpers  
- ┃ ┣ 📜FileHelper.cs  
- ┃ ┣ 📜GeometryHelper.cs  
- ┃ ┣ 📜RevitAPIHelper.cs  
- ┃ ┗ 📜WindowHelper.cs  
- ┣ 📂Models  
- ┃ ┣ 📜OBJGeometryModel.cs  
- ┃ ┗ 📜RoomModel.cs   
- ┣ 📂Properties   
- ┃ ┗ AssemblyInfo.cs   
- ┣ 📂Resources   
- ┃ ┗ 📂Icons  
- ┃   ┣ 📜import-obj-geometry-16.png  
- ┃   ┣ 📜import-obj-geometry-24.png  
- ┃   ┣ 📜room-data-extraction-16.png  
- ┃   ┗ 📜room-data-extraction-24.png  
- ┣ 📂Services  
- ┃ ┣ 📜ImportObjGeometryService.cs  
- ┃ ┣ 📜ReportService.cs  
- ┃ ┗ 📜RoomDataExtractionService.cs   
- ┣ 📂ViewModels  
- ┃ ┣ 📜BaseViewModel.cs  
- ┃ ┣ 📜ImportObjGeometryViewModel.cs   
- ┃ ┗ 📜RoomDataExtractionViewModel.cs   
- ┣ 📂Views  
- ┃ ┣ 📜ImportObjGeometryView.xaml  
- ┃ ┣ 📜ImportObjGeometryView.xaml.cs  
- ┃ ┣ 📜RoomDataExtractionView.xaml  
- ┃ ┗ 📜RoomDataExtractionView.xaml.cs   
- ┣ 📜.gitignore  
- ┣ 📜RevitAddinTest.csproj  
- ┗ 📜RevitAddinTest.sln  
+[📦RevitAddinText](./RevitAddinTest/) `Solution root folder`  
+ ┣ [📂AddinManifest](./RevitAddinTest/AddinManifest/) `Folder with Addin Manifest`   
+ ┃ ┗ [📜RevitAddinTest.addin](./RevitAddinTest/AddinManifest/RevitAddinTest.addin) `Addin Manifest`  
+ ┣ [📂Application](./RevitAddinTest/Application/) `Application-related files`  
+ ┃ ┣ [📜App.xaml](./RevitAddinTest/Application/App.xaml) `WPF application configuration of the project`  
+ ┃ ┣ [📜App.xaml.cs](./RevitAddinTest/Application/App.xaml.cs) `WPF application configuration of the project code`  
+ ┃ ┗ [📜RevitApp.cs](./RevitAddinTest/Application/RevitApp.cs) `Revit application (IExternalApplication)`  
+ ┣ [📂Commands](./RevitAddinTest/Commands/) `Revit (IExternalCommand) and WPF (ICommand)-related files`  
+ ┃ ┣ [📜ImportObjGeometryCommand.cs](./RevitAddinTest/Commands/ImportObjGeometryCommand.cs) `Revit command to implement Task 2`  
+ ┃ ┣ [📜RelayCommand.cs](./RevitAddinTest/Commands/RelayCommand.cs) `WPF ICommand generic implementation to be reused`  
+ ┃ ┗ [📜RoomDataExtractionCommand.cs](./RevitAddinTest/Commands/RoomDataExtractionCommand.cs) `Revit command to implement Task 1`   
+ ┣ [📂Data](./RevitAddinTest/Data/) `Folder to store the sample files`  
+ ┃ ┣ [📜Snaptrude.rvt](./RevitAddinTest/Data/Snaptrude.rvt) `Sample Revit model`  
+ ┃ ┗ [📜snaptrude.obj](./RevitAddinTest/Data/snaptrude.obj) `Sample OBJ file`  
+ ┣ [📂Helpers](./RevitAddinTest/Helpers/) `Folder to store helper classes`  
+ ┃ ┣ [📜FileHelper.cs](./RevitAddinTest/Helpers/FileHelper.cs) `Help to get Open/Save file paths`  
+ ┃ ┣ [📜GeometryHelper.cs](./RevitAddinTest/Helpers/GeometryHelper.cs) `Help to calculate Occupied Volume, Check if geometry is void, Parse OBJ files, and create Revit Geometry`  
+ ┃ ┣ [📜RevitAPIHelper.cs](./RevitAddinTest/Helpers/RevitAPIHelper.cs) `Help to check Volume Calculation Settings, handle Zoom to Elements and Get Elements Inside a Room`   
+ ┃ ┗ [📜WindowHelper.cs](./RevitAddinTest/Helpers/WindowHelper.cs) `Help to make Revit Owner of the WPF windows`  
+ ┣ [📂Models](./RevitAddinTest/Models/) `Folder to store model classes`  
+ ┃ ┣ [📜OBJGeometryModel.cs](./RevitAddinTest/Models/OBJGeometryModel.cs) `OBJ Geometry model class`  
+ ┃ ┗ [📜RoomModel.cs](./RevitAddinTest/Models/RoomModel.cs) `Room model class`   
+ ┣ [📂Properties](./RevitAddinTest/Properties/)   
+ ┃ ┗ [📜AssemblyInfo.cs](./RevitAddinTest/Properties/AssemblyInfo.cs)   
+ ┣ [📂Resources](./RevitAddinTest/Resources/) `Folder to store addin Icons`   
+ ┃ ┗ [📂Icons](./RevitAddinTest/Resources/Icons/)  
+ ┃   ┣ [📜import-obj-geometry-16.png](./RevitAddinTest/Resources/Icons/import-obj-geometry-16.png)  
+ ┃   ┣ [📜import-obj-geometry-24.png](./RevitAddinTest/Resources/Icons/import-obj-geometry-24.png)  
+ ┃   ┣ [📜room-data-extraction-16.png](./RevitAddinTest/Resources/Icons/room-data-extraction-16.png)  
+ ┃   ┗ [📜room-data-extraction-24.png](./RevitAddinTest/Resources/Icons/room-data-extraction-24.png)  
+ ┣ [📂Services](./RevitAddinTest/Services/) `Folder to store Services classes - classes responsible for the business logic` 
+ ┃ ┣ [📜ImportObjGeometryService.cs](./RevitAddinTest/Services/ImportObjGeometryService.cs) `Import OBJ logic`  
+ ┃ ┣ [📜ReportService.cs](./RevitAddinTest/Services/ReportService.cs) `Export CSV file logic`  
+ ┃ ┗ [📜RoomDataExtractionService.cs](./RevitAddinTest/Services/RoomDataExtractionService.cs) `Extract Room data logic`   
+ ┣ [📂ViewModels](./RevitAddinTest/ViewModels/) `Folder to store ViewModels`  
+ ┃ ┣ [📜BaseViewModel.cs](./RevitAddinTest/ViewModels/BaseViewModel.cs) `Base class with the implementation of INotifyPropertyChanged to be inherited`  
+ ┃ ┣ [📜ImportObjGeometryViewModel.cs](./RevitAddinTest/ViewModels/ImportObjGeometryViewModel.cs) `Connects the ImportObjGeometry View, model and logic`   
+ ┃ ┗ [📜RoomDataExtractionViewModel.cs](./RevitAddinTest/ViewModels/RoomDataExtractionViewModel.cs) `Connecys the RoomDataExtraction View, model and logic`   
+ ┣ [📂Views](./RevitAddinTest/Views/) `Folder to store the UIs`  
+ ┃ ┣ [📜ImportObjGeometryView.xaml](./RevitAddinTest/Views/ImportObjGeometryView.xaml) `ImportObjGeometry View (UI)`  
+ ┃ ┣ [📜ImportObjGeometryView.xaml.cs](./RevitAddinTest/Views/ImportObjGeometryView.xaml.cs) `ImportObjGeometry View (UI) code`  
+ ┃ ┣ [📜RoomDataExtractionView.xaml](./RevitAddinTest/Views/RoomDataExtractionView.xaml) `RoomDataExtraction View (UI)`  
+ ┃ ┗ [📜RoomDataExtractionView.xaml.cs](./RevitAddinTest/Views/RoomDataExtractionView.xaml.cs) `RoomDataExtraction View (UI) code`   
+ ┣ [📜.gitignore](./RevitAddinTest/.gitignore)  
+ ┣ [📜RevitAddinTest.csproj](./RevitAddinTest/RevitAddinTest.csproj) `Visual Studio Project File`  
+ ┗ [📜RevitAddinTest.sln](./RevitAddinTest/RevitAddinTest.sln) `Visual Studio Solution File`  
 
-Ainda sobre a estrutura geral do plugin, optei por usar os comandos do WPF sempre que possível para evitar o crash do Revit e desenvolver uma solução alinhada com o patterns escolhido. Então pedi o ChatGPT para me ajudar a criar o arquivo RelayCommand.cs, que é um arquivo que contém a implementação do ICommand do WPF de forma genérica, para que eu pudesse usar em todos os comandos do plugin.
+Still regarding the overall structure of the plugin, I chose to use WPF commands whenever possible to avoid Revit crashes and to develop a solution aligned with the chosen pattern. So I asked ChatGPT to help me create the `RelayCommand.cs` file, which contains a generic implementation of WPF's `ICommand`, so I could use it for all the commands in the plugin.
 
-Além disso, separei a lógica do plugin em Services, para deixar o ViewModel e os Commands mais limpos e fáceis de manter. Também criei arquivos de ajuda para códigos pontuais e repetitivos.
+Additionally, I separated the plugin logic into `Services` to keep the `ViewModel` and `Commands` cleaner and easier to maintain. I also created `Helper` files for specific and repetitive code.
 
-Para os ViwModels, criei uma classe base com a implementação do INotifyPropertyChanged, para que as demais classes pudessem herdar e não precisar repetir o código.
+For the `ViewModels`, I created a base class with the implementation of `INotifyPropertyChanged`, so that other classes could inherit from it and avoid repeating code.
 
-### Minhas Abordagens para Resolver os Problemas
+### My Approaches to Solving the Problems
 
 > [!IMPORTANT]  
-> Para mais detalhes e maiores informações, verificar os comentários no código!
+> For more details and additional information, please refer to the comments in the code!
 
 #### Task 1: Room Data Extraction
-Para a [Task 1](#task-1-room-data-extraction), Room Data Extraction, eu pensei em coletar todos os Rooms do projeto, pegar as informações solicitadas de cada room e fazer os cáculos necessários para determinar a utilização do espaço. Após isso, eu exibiria os dados em formato de tabela, com a possibilidade de exportar para um arquivo CSV no final.
 
-Como não estava especificado no enunciado as unidades de medida, escolhi exibir em metros quadrados e metros cúbicos para facilitar a conferência. De toda maneira, para remover esta conversão, bastaria pegar os valores na unidade interna do Revit.
+For [Task 1](#task-1-room-data-extraction), Room Data Extraction, I planned to collect all the Rooms from the project, gather the requested information for each room, and perform the necessary calculations to determine space usage. Afterward, I would display the data in a table format, with the option to export it to a CSV file at the end.
 
-Ao coletar os Rooms e começar a extrair as informações, me deparei com alguns problemas:
+Since the prompt did not specify the units of measurement, I chose to display the values in square meters and cubic meters for easier verification. However, to remove this conversion, I could simply use the values in Revit's internal units.
 
-1. Percebi que os Rooms no modelo estavam todos com Volume igual a 0. Pesquisei para entender e descobri que é necessário habilitar a propriedade `ComputeVolumes` da classe `AreaVolumeSettings`. Então adicionei uma verificação no início do comando para certificar que a propriedade está habilitada.
+When collecting the Rooms and starting to extract the information, I encountered some issues:
 
-1. Mesmo após ativar a propriedade, o Volume de alguns Rooms ainda estava retornando 0. Avaliando no modelo, percebi que estes Rooms não estavam inseridos, desta maneira, considerei somente os Rooms inseridos, ou com Volume maior que 0.
+1. I noticed that the Rooms in the model all had a Volume of 0 (zero). I researched and found that it was necessary to enable the `ComputeVolumes` property in the `AreaVolumeSettings` class. So I added a check at the beginning of the command to ensure that the property is enabled.
 
-1. No modelo também percebi que muitos Rooms, se não todos, estavam com o Upper Limit (level) igual ao Level e com o Limit Offset maior que o seu pé direito. Em um mundo real, eu implementaria um aviso ao usuário sobre isso, pois, aparentemente se trata de um erro de modelagem, ou consertaria automaticamente este problema, porém, para este teste, considerei que o modelo estava correto.
+1. Even after enabling the property, some Rooms still had a `Volume` of 0. Upon evaluating the model, I realized that these Rooms were not placed, so I considered only Rooms that were placed or had a `Volume` greater than 0.
 
-1. Para configurar os filtros das categorias de elementos que deveriam ser coletadas, em um mundo ideal, eu criaria um outro comando para realizar esta configuração, que consistiria em uma UI para o usuário selecionar as categorias que ele deseja coletar, porém, para este teste, criei um filtro fixo para desconsiderar as categorias mencionadas no enunciado.
+1. I also noticed that many Rooms, if not all, had the `Upper Limit` (level) set to the same level as the current `Level`, and the `Limit Offset` was greater than the ceiling height. In a real-world scenario, I would implement a warning to the user about this, as it appears to be a modeling error, or I would automatically fix the issue. However, for this test, I assumed the model was correct.
 
-	- Um dos problemas da abordagem adotada é que eu teria que criar workarounds para cada especificidade que apareça, por exemplo, na Garagem, o modelo do carro estava oculto nas vistas, porém, o volume do carro estava sendo contabilizado. Para resolver isso, eu teria que criar um filtro para desconsiderar a categoria do carro, por exemplo, ou alguma regra para considerar somente elementos visíveis no 3D.
+1. To configure the filters for the categories of elements to be collected, ideally, I would create another command for this configuration, which would include a UI for the user to select the categories they want to collect. However, for this test, I created a fixed filter to disregard the categories mentioned in the prompt.
+
+	- One of the problems with this approach is that I would need to create workarounds for each specificity that appears. For instance, in the Garage, the car model was hidden in the views, but the car's volume was still being counted. To solve this, I would need to create a filter to disregard the car category or a rule to consider only elements visible in 3D.
 	
-	- Não encontrei uma forma ideal de verificar se o sólido é um void. Encontrei 2 maneiras de fazer isso, uma é verificar se o volume do sólido é igual a zero e a outra é verificar se o `GraphicsStyleId`do sólido é igual a `ElementId(BuiltInCategory.OST_IOSCuttingGeometry)`, porém não notei diferença nos testes que fiz. Para mais detalhes visite o arquivo [GeometryHelper.cs](./RevitAddinTest/Helpers/GeometryHelper.cs).
+	- I did not find an ideal way to check if a solid is a void. I found two ways to do this: one is to check if the solid's volume is equal to zero, and the other is to check if the solid's `GraphicsStyleId` is equal to `ElementId(BuiltInCategory.OST_IOSCuttingGeometry)`, but I did not notice any difference in my tests. For more details, visit the [GeometryHelper.cs](./RevitAddinTest/Helpers/GeometryHelper.cs) file.
 
-1. Optei por usar o `BoundingBox` dos Rooms para criar um filtro `BoundingBoxIntersectsFilter` para coletar os elementos dentro do Room usando o `FilteredElementCollector` com o método `WherePasses()`. Porém, percebi que o filtro não estava funcionando como esperado, estava retornando elementos a mais, como tomadas e interruptores que a menor parte de sua geometria estava dentro do room, porém a maior parte estava dentro da parede. Pensei então em usar o `BoundingBoxIsInsideFilter`, porém, alguns Rooms que continham elementos simplesmente retornaram listas vazias. Acredito que tenha a ver com o ponto de inserção ou o host das famílias. Então, decidi voltar para o `BoundingBoxIntersectsFilter` e adicionar uma variável de tolerância para reduzir os limites do `BoundingBox` do Room e não coletar elementos que estavam nas paredes, pisos ou tetos.
+1. I chose to use the `BoundingBox` of the Rooms to create a `BoundingBoxIntersectsFilter` to collect elements inside the Room using the `FilteredElementCollector` with the `WherePasses()` method. However, I realized that the filter was not working as expected, as it was returning additional elements, such as sockets and switches, where only a small part of their geometry was inside the room but most of it was within the wall. I then thought of using `BoundingBoxIsInsideFilter`, but some Rooms that contained elements simply returned empty lists. I believe it has to do with the insertion point or the host of the families. So, I decided to go back to `BoundingBoxIntersectsFilter` and add a tolerance variable to reduce the `BoundingBox` limits of the Room and not collect elements that were in the walls, floors, or ceilings.
 
-1. Para pegar os volumes das famílias, inicialmente pensei em usar o parâmetro built-in `HOST_VOLUME_COMPUTED`, mas rapidamente percebi que estava havendo uma divergência se comparado com a soma dos volumes dos sólidos da família. Então, optei por pegar os volumes dos sólidos da família e somar.
+1. To get the volumes of the families, I initially thought of using the built-in parameter `HOST_VOLUME_COMPUTED`, but I quickly noticed discrepancies when compared to the sum of the family's solid volumes. So, I opted to get the volumes of the family's solids and sum them up.
 
-1. Após coletar todas as informações, adicionei uma linha de Total no final e criei uma UI para exibir os dados em formato de tabela, antes da exportação, e um botão para exportar para um arquivo CSV.
+Finally, after collecting all the information, I added a **Total** line at the end, created a UI to display the data in a table format before exporting, and added a button to export to a CSV file, opening a Save Dialog for the user to choose the file location and name.
 
 > [!NOTE]  
-> Adicionei a funcionalidade de Double Click nas linhas da tabela para que o addin dê zoom no Room selecionado.
+> I added a Double Click functionality to the table rows so that the addin zooms in on the selected Room.
+
 
 
 #### Task 2: Import OBJ Geometry into Revit
 
-Para a [Task 2](#task-2-import-obj-geometry-into-revit), Import OBJ Geometry into Revit, 
+Para a [Task 2](#task-2-import-obj-geometry-into-revit), Import OBJ Geometry into Revit, eu não sabia como começar, pois nunca tinha trabalhar com a conversão de um [arquivo OBJ](https://en.wikipedia.org/wiki/Wavefront_.obj_file) para geometria do Revit, então pedi o ChatGPT para me ajudar a entender como funcionava o arquivo OBJ, pesquisei também na documentação do Wavefront e em outros sites para entender a estrutura do arquivo.
 
+Criei o model [OBJGeometryModel](./RevitAddinTest/Models/OBJGeometryModel.cs) para armazenar as informações do arquivo OBJ.
 
+Também criei uma UI para o usuário selecionar o arquivo OBJ que ele deseja importar e um botão para realizar a importação.
 
+Percebi que basicamente eu precisava ler as linhas do arquivo e focar nas que começavam com `v` (vértices), `f` (faces) e `o` (objetos).
+
+Então usei o `StreamReader` para ler o arquivo e usei [Regex](https://en.wikipedia.org/wiki/Regular_expression) para identificar as linhas que começavam com `v`, `f` e `o`.
+
+1. Quando a linha começa com `o`, significa que esta é um novo objeto. Eu crio um novo `OBJGeometryModel`, nomeio com o valor da linha após o `o` e, caso o anterior tenha algo dado, eu adiciono na lista de geometrias.
+
+1. Quando a linha começa com `v`, significa que este é um vertex. Eu pego os valores de `x`, `y` e `z` e crio um objeto Revit `XYZ` para adicionar na lista de vértices.
+
+	- Aprendi que o sistema de coordenadas do OBJ é diferente do Revit, o eixo Y aponta para cima no OBj, enquanto no Revit, o eixo Z aponta para cima. Então, para converter, eu inverto o valor de `y` para `z`.
+	
+	- Além disso, o vertex do OBJ possui 4 valores, sendo o 4º valor (w) opicional, sendo assim, eu só pego os 3 primeiros valores.
+
+1. Quando a linha começa com `f`, significa que esta é uma face. Considerando a estrutura de face do OBJ como `f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...`, onde `v1`, `v2`, `v3`, ... `vn` são os índices dos vértices e `vt` e `vn` são os índices das texturas e normais, respectivamente, eu pego somente os índices dos vértices, já que no enunciado do desafio não há nada sobre texturas.
+
+	- Segundo a documentação, o índice dos vértices no OBJ começa em 1, enquanto que nos arrays começa em 0, então eu subtraio 1 do índice.
+
+	- **PORÉM**, o problema em que eu mais gastei tempo para entender e resolver foi que o elemento `Icosphere` do [OBJ exemplo](./RevitAddinTest/Data/snaptrude.obj) fornecido não estava sendo criado por um erro de índice fora do intervalo, somente o cubo estava sendo criado, inclusive carreguei o OBJ em um visualizador online e vi que o `Icosphere` estava sendo renderizado corretamente. Após muitas tentativas e erros, percebi que o menor índice de vértice do `Icosphere` não era 1, mas sim 9, então, ao invés de subtrair 1 do índice, eu subtraí 9. E Voilà, o `Icosphere` passou a ser criado corretamente!
+
+> [!IMPORTANT]  
+> Outra informação importante que consta na documentação é que o OBJ não contém informações de unidades de medida, então, seria necessário adicionar à UI a possibilidade do usuário escolher a unidade de medida que ele deseja usar para a importação ou um fator de escala para que seja possível escalar a geometria importada corretamente. Porém, para este teste, desconsiderei esta etapa.
+
+Para converter os dados tratados do OBJ em uma geometria que fosse possível de ser inserida como família no Revit, usei o `DirectShape` para criar uma instância de uma família model in-place e o `TessellatedShapeBuilder` para gerar uma lista de `GeometryObject` que serviriam para definir a forma destas familias (com ajuda do ChatGPT).
+
+Quando o OBJ é convertido e a família é criada, o addin dá zoom na família criada e exibe uma mensagem de sucesso.

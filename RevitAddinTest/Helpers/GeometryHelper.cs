@@ -122,9 +122,9 @@ namespace RevitAddinTest.Helpers
 
 
 
-        // I used chatGPT to help me to build this parse method
+        // I used chatGPT and this documentation: https://en.wikipedia.org/wiki/Wavefront_.obj_file
+		// to help me to build this parse method
         // because I have never converted an OBJ file to a Revit geometry before
-        // and this documentation: https://en.wikipedia.org/wiki/Wavefront_.obj_file
         public static List<OBJGeometryModel> ParseOBJFile(string filePath)
 		{
 			// Instantiate a list of OBJ model
@@ -139,13 +139,12 @@ namespace RevitAddinTest.Helpers
 					// and I found this a great idea because it's more readable and maintainable
 					Regex objectPattern = new Regex(@"^o\s");
 					Regex vertexPattern = new Regex(@"^v\s");
-					//Regex vertexPattern = new Regex(@"^v");
                     Regex facePattern = new Regex(@"^f\s");
 
 					OBJGeometryModel objModel = new OBJGeometryModel();
 					while ((line = reader.ReadLine()) != null)
 					{
-						// Same as the previous method, I'm showing a message box with the object info
+						// Same as the previous debug method, I'm showing a message box with the object info
 						if ((Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && (objectPattern.IsMatch(line) || vertexPattern.IsMatch(line) || facePattern.IsMatch(line)))
 						{
 							TaskDialog.Show("Info", $"Parsing new line: {line}\n\nObjectInfo so far:\nVertices: {objModel.Vertices.Count}\nFaces: {objModel.Faces.Count}\nName: {objModel.Name}\n\nObjects so far: {objModels.Count}");
@@ -189,7 +188,7 @@ namespace RevitAddinTest.Helpers
 							string[] parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 							if (parts.Length >= 4)
 							{
-                                // The face structure is f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+                                // The face structure is 'f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...'
 								// So I just need the first item of each part
 								List<int> face = new List<int>();
                                 for (int i = 1; i < parts.Length; i++)
