@@ -165,36 +165,35 @@ Finally, after collecting all the information, I added a **Total** line at the e
 > I added a Double Click functionality to the table rows so that the addin zooms in on the selected Room.
 
 
-
 #### Task 2: Import OBJ Geometry into Revit
 
-Para a [Task 2](#task-2-import-obj-geometry-into-revit), Import OBJ Geometry into Revit, eu não sabia como começar, pois nunca tinha trabalhar com a conversão de um [arquivo OBJ](https://en.wikipedia.org/wiki/Wavefront_.obj_file) para geometria do Revit, então pedi o ChatGPT para me ajudar a entender como funcionava o arquivo OBJ, pesquisei também na documentação do Wavefront e em outros sites para entender a estrutura do arquivo.
+For [Task 2](#task-2-import-obj-geometry-into-revit), Import OBJ Geometry into Revit, I didn't know how to start, as I had never worked with converting an [OBJ file](https://en.wikipedia.org/wiki/Wavefront_.obj_file) into Revit geometry. So I asked ChatGPT to help me understand how the OBJ file worked, and I also researched the Wavefront documentation and other sites to understand the file structure.
 
-Criei o model [OBJGeometryModel](./RevitAddinTest/Models/OBJGeometryModel.cs) para armazenar as informações do arquivo OBJ.
+I created the model [OBJGeometryModel](./RevitAddinTest/Models/OBJGeometryModel.cs) to store the information from the OBJ file.
 
-Também criei uma UI para o usuário selecionar o arquivo OBJ que ele deseja importar e um botão para realizar a importação.
+I also created a UI for the user to select the OBJ file they want to import, along with a button to perform the import.
 
-Percebi que basicamente eu precisava ler as linhas do arquivo e focar nas que começavam com `v` (vértices), `f` (faces) e `o` (objetos).
+I realized that, basically, I needed to read the lines of the file and focus on those starting with `v` (vertices), `f` (faces), and `o` (objects).
 
-Então usei o `StreamReader` para ler o arquivo e usei [Regex](https://en.wikipedia.org/wiki/Regular_expression) para identificar as linhas que começavam com `v`, `f` e `o`.
+So, I used `StreamReader` to read the file and used [Regex](https://en.wikipedia.org/wiki/Regular_expression) to identify lines that started with `v`, `f`, and `o`.
 
-1. Quando a linha começa com `o`, significa que esta é um novo objeto. Eu crio um novo `OBJGeometryModel`, nomeio com o valor da linha após o `o` e, caso o anterior tenha algo dado, eu adiciono na lista de geometrias.
+1. When the line starts with `o`, it means this is a new object. I create a new `OBJGeometryModel`, name it with the value from the line after `o`, and, if the previous one had data, I add it to the list of geometries.
 
-1. Quando a linha começa com `v`, significa que este é um vertex. Eu pego os valores de `x`, `y` e `z` e crio um objeto Revit `XYZ` para adicionar na lista de vértices.
+1. When the line starts with `v`, it indicates a vertex. I take the `x`, `y`, and `z` values and create a Revit `XYZ` object to add to the vertex list.
 
-	- Aprendi que o sistema de coordenadas do OBJ é diferente do Revit, o eixo Y aponta para cima no OBj, enquanto no Revit, o eixo Z aponta para cima. Então, para converter, eu inverto o valor de `y` para `z`.
+	- I learned that the coordinate system of OBJ is different from Revit: the Y-axis points up in OBJ, while in Revit, the Z-axis points up. So, to convert, I swapped the `y` value to `z`.
 	
-	- Além disso, o vertex do OBJ possui 4 valores, sendo o 4º valor (w) opicional, sendo assim, eu só pego os 3 primeiros valores.
+	- Additionally, the OBJ vertex has 4 values, with the 4th value (`w`) being optional, so I only take the first 3 values.
 
-1. Quando a linha começa com `f`, significa que esta é uma face. Considerando a estrutura de face do OBJ como `f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...`, onde `v1`, `v2`, `v3`, ... `vn` são os índices dos vértices e `vt` e `vn` são os índices das texturas e normais, respectivamente, eu pego somente os índices dos vértices, já que no enunciado do desafio não há nada sobre texturas.
+1. When the line starts with `f`, it represents a face. Considering the OBJ face structure as `f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...`, where `v1`, `v2`, `v3`, ... `vn` are vertex indices and `vt` and `vn` are texture and normal indices, respectively, I only take the vertex indices, as there was nothing in the challenge prompt about textures.
 
-	- Segundo a documentação, o índice dos vértices no OBJ começa em 1, enquanto que nos arrays começa em 0, então eu subtraio 1 do índice.
+	- According to the documentation, the vertex index in OBJ starts at 1, whereas in arrays it starts at 0, so I subtracted 1 from the index.
 
-	- **PORÉM**, o problema em que eu mais gastei tempo para entender e resolver foi que o elemento `Icosphere` do [OBJ exemplo](./RevitAddinTest/Data/snaptrude.obj) fornecido não estava sendo criado por um erro de índice fora do intervalo, somente o cubo estava sendo criado, inclusive carreguei o OBJ em um visualizador online e vi que o `Icosphere` estava sendo renderizado corretamente. Após muitas tentativas e erros, percebi que o menor índice de vértice do `Icosphere` não era 1, mas sim 9, então, ao invés de subtrair 1 do índice, eu subtraí 9. E Voilà, o `Icosphere` passou a ser criado corretamente!
+	- **HOWEVER**, the issue that took me the most time to understand and solve was that the `Icosphere` element of the provided [sample OBJ](./RevitAddinTest/Data/snaptrude.obj) was not being created due to an out-of-range index error; only the cube was being created. I loaded the OBJ in an online viewer and saw that the `Icosphere` was being rendered correctly. After much trial and error, I realized that the smallest vertex index of the `Icosphere` was not 1 but 9, so instead of subtracting 1 from the index, I subtracted 9. And voilà, the `Icosphere` was created correctly!
 
 > [!IMPORTANT]  
-> Outra informação importante que consta na documentação é que o OBJ não contém informações de unidades de medida, então, seria necessário adicionar à UI a possibilidade do usuário escolher a unidade de medida que ele deseja usar para a importação ou um fator de escala para que seja possível escalar a geometria importada corretamente. Porém, para este teste, desconsiderei esta etapa.
+> Another important point noted in the documentation is that OBJ does not contain unit information. Therefore, it would be necessary to add an option in the UI for the user to choose the desired measurement unit for the import or a scale factor to correctly scale the imported geometry. However, for this test, I disregarded this step.
 
-Para converter os dados tratados do OBJ em uma geometria que fosse possível de ser inserida como família no Revit, usei o `DirectShape` para criar uma instância de uma família model in-place e o `TessellatedShapeBuilder` para gerar uma lista de `GeometryObject` que serviriam para definir a forma destas familias (com ajuda do ChatGPT).
+To convert the processed OBJ data into a geometry that could be inserted as a family in Revit, I used `DirectShape` to create an instance of an in-place model family and `TessellatedShapeBuilder` to generate a list of `GeometryObject` that would define the shape of these families (with the help of ChatGPT).
 
-Quando o OBJ é convertido e a família é criada, o addin dá zoom na família criada e exibe uma mensagem de sucesso.
+When the OBJ is converted, and the family is created, the addin zooms in on the created family and displays a success message.
