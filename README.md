@@ -35,7 +35,7 @@ Create a Revit add-in that imports a simple OBJ file (check attachment) containi
 
 4. Place the imported geometry instances within the Revit project, maintaining their original positions and orientations from the OBJ file.
 
-> [!NOTE]
+> [!CAUTION]   
 > Do not use any intermediary library to parse the data.
 
 ## Solution
@@ -44,7 +44,7 @@ I started by asking about the purpose of the test, whether it would be to evalua
 
 I chose to create the addin for **Revit 2024**.
 
-> [!IMPORTANT]
+> [!IMPORTANT]  
 > The addin was developed using the Revit API for Revit 2024.
 
 First, I asked ChatGPT to help me configure the folder structure of my addin and plan it, following the [MVVM pattern](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel), to keep the code well-organized and as decoupled as possible.
@@ -133,5 +133,5 @@ Ao coletar os Rooms e começar a extrair as informações, me deparei com alguns
 Para a [Task 2](#task-2-import-obj-geometry-into-revit), Import OBJ Geometry into Revit, 
 
 
-> [!IMPORTANT]
+> [!IMPORTANT]  
 > Para mais detalhes e maiores informações, verificar os comentários no código!
