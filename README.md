@@ -46,8 +46,8 @@ Create a Revit add-in that imports a simple OBJ file (check attachment) containi
 
 4. Place the imported geometry instances within the Revit project, maintaining their original positions and orientations from the OBJ file.
 
-	> [!CAUTION]   
-	> Do not use any intermediary library to parse the data.
+> [!CAUTION]   
+> Do not use any intermediary library to parse the data.
 
 ## Solution
 
