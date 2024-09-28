@@ -4,14 +4,23 @@ Code developed for the Revit Addin test, proposed by Snaptrude.
 
 ## Summary
 
+- [Installation](#installation)
 - [Challenges](#challenges)
 	- [Task 1: Room Data Extraction](#task-1-room-data-extraction)
 	- [Task 2: Import OBJ Geometry into Revit](#task-2-import-obj-geometry-into-revit)
 - [Solution](#solution)
 	- [Addin Structure](#addin-structure)
 	- [Minhas Abordagens para Resolver os Problemas](#minhas-abordagens-para-resolver-os-problemas)
-- Addin Files
-- How to Use
+		- [Task 1: Room Data Extraction](#task-1-room-data-extraction)
+		- [Task 2: Import OBJ Geometry into Revit](#task-2-import-obj-geometry-into-revit)
+
+
+## Installation
+
+1. Download the `zip` file from the [Releases](https://github.com/mayconrfreitas/revit-addin-test/releases/latest) page.
+
+1. Extract the contents of the `zip` file to `%appdata%\Autodesk\Revit\Addins\2024`.
+
 
 ## Challenges
 
@@ -119,6 +128,10 @@ Para os ViwModels, criei uma classe base com a implementação do INotifyPropert
 
 ### Minhas Abordagens para Resolver os Problemas
 
+> [!IMPORTANT]  
+> Para mais detalhes e maiores informações, verificar os comentários no código!
+
+#### Task 1: Room Data Extraction
 Para a [Task 1](#task-1-room-data-extraction), Room Data Extraction, eu pensei em coletar todos os Rooms do projeto, pegar as informações solicitadas de cada room e fazer os cáculos necessários para determinar a utilização do espaço. Após isso, eu exibiria os dados em formato de tabela, com a possibilidade de exportar para um arquivo CSV no final.
 
 Como não estava especificado no enunciado as unidades de medida, escolhi exibir em metros quadrados e metros cúbicos para facilitar a conferência. De toda maneira, para remover esta conversão, bastaria pegar os valores na unidade interna do Revit.
@@ -135,14 +148,21 @@ Ao coletar os Rooms e começar a extrair as informações, me deparei com alguns
 
 	- Um dos problemas da abordagem adotada é que eu teria que criar workarounds para cada especificidade que apareça, por exemplo, na Garagem, o modelo do carro estava oculto nas vistas, porém, o volume do carro estava sendo contabilizado. Para resolver isso, eu teria que criar um filtro para desconsiderar a categoria do carro, por exemplo, ou alguma regra para considerar somente elementos visíveis no 3D.
 	
-	- 
+	- Não encontrei uma forma ideal de verificar se o sólido é um void. Encontrei 2 maneiras de fazer isso, uma é verificar se o volume do sólido é igual a zero e a outra é verificar se o `GraphicsStyleId`do sólido é igual a `ElementId(BuiltInCategory.OST_IOSCuttingGeometry)`, porém não notei diferença nos testes que fiz. Para mais detalhes visite o arquivo [GeometryHelper.cs](./RevitAddinTest/Helpers/GeometryHelper.cs).
 
 1. Optei por usar o `BoundingBox` dos Rooms para criar um filtro `BoundingBoxIntersectsFilter` para coletar os elementos dentro do Room usando o `FilteredElementCollector` com o método `WherePasses()`. Porém, percebi que o filtro não estava funcionando como esperado, estava retornando elementos a mais, como tomadas e interruptores que a menor parte de sua geometria estava dentro do room, porém a maior parte estava dentro da parede. Pensei então em usar o `BoundingBoxIsInsideFilter`, porém, alguns Rooms que continham elementos simplesmente retornaram listas vazias. Acredito que tenha a ver com o ponto de inserção ou o host das famílias. Então, decidi voltar para o `BoundingBoxIntersectsFilter` e adicionar uma variável de tolerância para reduzir os limites do `BoundingBox` do Room e não coletar elementos que estavam nas paredes, pisos ou tetos.
 
-1. Para pegar os volumes das famílias, inicialmente pensei em 
+1. Para pegar os volumes das famílias, inicialmente pensei em usar o parâmetro built-in `HOST_VOLUME_COMPUTED`, mas rapidamente percebi que estava havendo uma divergência se comparado com a soma dos volumes dos sólidos da família. Então, optei por pegar os volumes dos sólidos da família e somar.
+
+1. Após coletar todas as informações, adicionei uma linha de Total no final e criei uma UI para exibir os dados em formato de tabela, antes da exportação, e um botão para exportar para um arquivo CSV.
+
+> [!NOTE]  
+> Adicionei a funcionalidade de Double Click nas linhas da tabela para que o addin dê zoom no Room selecionado.
+
+
+#### Task 2: Import OBJ Geometry into Revit
 
 Para a [Task 2](#task-2-import-obj-geometry-into-revit), Import OBJ Geometry into Revit, 
 
 
-> [!IMPORTANT]  
-> Para mais detalhes e maiores informações, verificar os comentários no código!
+
