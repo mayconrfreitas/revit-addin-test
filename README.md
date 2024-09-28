@@ -2,7 +2,18 @@
 
 Code developed for the Revit Addin test, proposed by Snaptrude.
 
-## Desafios
+## Summary
+
+- [Challenges](#challenges)
+	- [Task 1: Room Data Extraction](#task-1-room-data-extraction)
+	- [Task 2: Import OBJ Geometry into Revit](#task-2-import-obj-geometry-into-revit)
+- [Solution](#solution)
+	- [Addin Structure](#addin-structure)
+	- [Minhas Abordagens para Resolver os Problemas](#minhas-abordagens-para-resolver-os-problemas)
+- Addin Files
+- How to Use
+
+## Challenges
 
 ### Task 1: Room Data Extraction
 
@@ -35,8 +46,8 @@ Create a Revit add-in that imports a simple OBJ file (check attachment) containi
 
 4. Place the imported geometry instances within the Revit project, maintaining their original positions and orientations from the OBJ file.
 
-> [!CAUTION]   
-> Do not use any intermediary library to parse the data.
+	> [!CAUTION]   
+	> Do not use any intermediary library to parse the data.
 
 ## Solution
 
