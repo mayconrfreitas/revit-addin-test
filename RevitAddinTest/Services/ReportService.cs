@@ -19,7 +19,7 @@ namespace RevitAddinTest.Services
             string filePath = "";
             try
 			{
-                filePath = FileHelper.GetFilePath("CSV File", "CSV Files (*.csv)|*.csv");
+                filePath = FileHelper.GetFilePath("CSV File", "CSV Files (*.csv)|*.csv", FileHelper.FileDialogType.Save);
                 if (string.IsNullOrEmpty(filePath))
                 {
                     throw new Exception("Invalid file path");

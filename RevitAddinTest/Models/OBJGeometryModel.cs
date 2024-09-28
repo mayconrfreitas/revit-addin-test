@@ -9,13 +9,14 @@ namespace RevitAddinTest.Models
 {
 	public class OBJGeometryModel
 	{
+		public string Name { get; set; }
 		public List<XYZ> Vertices { get; set; }
-		public List<int[]> Faces { get; set; }
+		public List<List<int>> Faces { get; set; }
 
 		public OBJGeometryModel()
 		{
 			Vertices = new List<XYZ>();
-			Faces = new List<int[]>();
+			Faces = new List<List<int>>();
 		}
 	}
 }

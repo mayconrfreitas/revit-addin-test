@@ -13,9 +13,10 @@ namespace RevitAddinTest.ViewModels
 {
 	public class ImportObjGeometryViewModel : BaseViewModel
 	{
-		private readonly ImportObjGeometryService _service;
+		private readonly ImportObjGeometryService _importObjService;
+        private readonly ExternalCommandData _commandData;
 
-		private string _objFilePath;
+        private string _objFilePath;
 		public string OBJFilePath
 		{
 			get { return _objFilePath; }
@@ -31,13 +32,17 @@ namespace RevitAddinTest.ViewModels
 
 		public ImportObjGeometryViewModel(ExternalCommandData commandData)
 		{
-			_service = new ImportObjGeometryService(commandData);
+			_commandData = commandData;
+
+            // Initialize service
+            _importObjService = new ImportObjGeometryService(commandData);
 
 			// Initialize commands
 			BrowseCommand = new RelayCommand(ExecuteBrowseCommand);
 			ImportCommand = new RelayCommand(ExecuteImportCommand, CanExecuteImportCommand);
 		}
 
+		// Command to browse for an OBJ file
 		private void ExecuteBrowseCommand(object parameter)
 		{
 			string filePath = FileHelper.GetFilePath("Select an OBJ File", "OBJ Files (*.obj)|*.obj");
@@ -47,14 +52,17 @@ namespace RevitAddinTest.ViewModels
 			}
 		}
 
+		// Command to check if the path is valid for importing the OBJ file
 		private bool CanExecuteImportCommand(object parameter)
 		{
 			return !string.IsNullOrEmpty(OBJFilePath);
 		}
 
+		// Command to import the OBJ file
 		private void ExecuteImportCommand(object parameter)
 		{
-			_service.ImportOBJFile(OBJFilePath);
+			// Call the service to import the OBJ file
+			_importObjService.ImportOBJFile(OBJFilePath);
 		}
 	}
 }

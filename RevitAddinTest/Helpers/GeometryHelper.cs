@@ -122,99 +122,166 @@ namespace RevitAddinTest.Helpers
 
 
 
-
-		public static OBJGeometryModel ParseOBJFile(string filePath)
+        // I used chatGPT to help me to build this parse method
+        // because I have never converted an OBJ file to a Revit geometry before
+        // and this documentation: https://en.wikipedia.org/wiki/Wavefront_.obj_file
+        public static List<OBJGeometryModel> ParseOBJFile(string filePath)
 		{
-			OBJGeometryModel objModel = new OBJGeometryModel();
+			// Instantiate a list of OBJ model
+			List<OBJGeometryModel> objModels = new List<OBJGeometryModel>();
 
 			try
 			{
 				using (StreamReader reader = new StreamReader(filePath))
 				{
 					string line;
+					// ChatGPT suggested me to use Regex to parse the OBJ file
+					// and I found this a great idea because it's more readable and maintainable
+					Regex objectPattern = new Regex(@"^o\s");
 					Regex vertexPattern = new Regex(@"^v\s");
-					Regex facePattern = new Regex(@"^f\s");
+					//Regex vertexPattern = new Regex(@"^v");
+                    Regex facePattern = new Regex(@"^f\s");
 
+					OBJGeometryModel objModel = new OBJGeometryModel();
 					while ((line = reader.ReadLine()) != null)
 					{
-						if (vertexPattern.IsMatch(line))
+						// Same as the previous method, I'm showing a message box with the object info
+						if ((Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && (objectPattern.IsMatch(line) || vertexPattern.IsMatch(line) || facePattern.IsMatch(line)))
 						{
-							// Parse vertex
-							string[] parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+							TaskDialog.Show("Info", $"Parsing new line: {line}\n\nObjectInfo so far:\nVertices: {objModel.Vertices.Count}\nFaces: {objModel.Faces.Count}\nName: {objModel.Name}\n\nObjects so far: {objModels.Count}");
+						}
+
+						// If the line starts with "o " it means that it's a new object
+						if (objectPattern.IsMatch(line))
+                        {
+                            // Start a new object
+                            if (objModel.Vertices.Count > 0 && objModel.Faces.Count > 0)
+                            {
+								// Add the current object to the list and start a new one
+                                objModels.Add(objModel);
+                                objModel = new OBJGeometryModel();
+                            }
+                            objModel.Name = line.Substring(2).Trim();
+                        }
+						// If the line starts with "v " it means that it's a vertex
+						else if (vertexPattern.IsMatch(line))
+						{
+                            // One this that I learn about the OBJ coordinates system
+                            // is that it's different from Revit's, the Y axis points up,
+                            // while Revit's Z axis points up
+                            // So I need to swap the Y and Z coordinates
+                            // Also, the vertex is made of 4 coordinates (x,y,z[,w])
+							// but I'm only interested in the first 3
+                            string[] parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 							if (parts.Length >= 4)
 							{
+								// Here I'm starting with index 1 because the first element is the "v" character
 								double x = double.Parse(parts[1]);
 								double y = double.Parse(parts[2]);
 								double z = double.Parse(parts[3]);
-								objModel.Vertices.Add(new XYZ(x, y, z));
-							}
+								objModel.Vertices.Add(new XYZ(x, z, y));
+                            }
 						}
+						// If the line starts with "f " it means that it's a face
 						else if (facePattern.IsMatch(line))
 						{
 							// Parse face
 							string[] parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 							if (parts.Length >= 4)
 							{
-								int v1 = int.Parse(parts[1].Split('/')[0]) - 1;
-								int v2 = int.Parse(parts[2].Split('/')[0]) - 1;
-								int v3 = int.Parse(parts[3].Split('/')[0]) - 1;
-								objModel.Faces.Add(new int[] { v1, v2, v3 });
-							}
+                                // The face structure is f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+								// So I just need the first item of each part
+								List<int> face = new List<int>();
+                                for (int i = 1; i < parts.Length; i++)
+								{
+                                    int v = int.Parse(parts[i].Split('/')[0]);
+                                    face.Add(v);
+                                }
+								objModel.Faces.Add(face);
+                            }
 						}
-					}
-				}
 
-				return objModel;
+						// Another important thing that I learned is that the OBJ file
+						// doesn't have a unit system, so I need to scale the geometry
+						// to fit the Revit's unit system
+						// I could add a dropdown to the user to select the unit system
+						// or I could add a text box to the user to input the scale factor
+						// but, for now, I'm just skipping this part
+					}
+
+                    // Add the last object to the list
+                    if (objModel.Vertices.Count > 0 && objModel.Faces.Count > 0)
+                    {
+                        objModels.Add(objModel);
+                    }
+                }
+
+				return objModels;
 			}
 			catch (Exception ex)
 			{
-				TaskDialog.Show("Error", $"Failed to parse OBJ file: {ex.Message}");
+				TaskDialog taskDialog = new TaskDialog("Error");
+				taskDialog.MainInstruction = "Failed to parse OBJ file.";
+				taskDialog.ExpandedContent = ex.Message + "\n" + ex.StackTrace;
+				taskDialog.Show();
 				return null;
 			}
 		}
 
-		public static Solid CreateSolidFromOBJData(OBJGeometryModel objModel)
+		// ChatGPT also helped me to build this method
+		// I'm using the TessellatedShapeBuilder to create a mesh
+		// and extracting it as GeometryObject to be used in the DirectShape
+		public static IList<GeometryObject> CreateRevitGeometryObjectFromOBJData(OBJGeometryModel objModel)
 		{
-			//try
-			//{
-			//	// Create a list of triangles
-			//	List<GeometryObject> triangles = new List<GeometryObject>();
+			try
+			{
+				// Create the geometry using the Revit API
+				TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+				builder.OpenConnectedFaceSet(false);
 
-			//	foreach (var face in objModel.Faces)
-			//	{
-			//		XYZ p1 = objModel.Vertices[face[0]];
-			//		XYZ p2 = objModel.Vertices[face[1]];
-			//		XYZ p3 = objModel.Vertices[face[2]];
+				// After a couple of hours trying to understand WHY THE ICOSPHERE WASN'T WORKING?!?!?!?!
+				// I found that the lowest vertex index for this element wasn't 1, but 9 (???)
+				// I still don't know why it happened (file error?? But the file worked on web OBJ viewer)
+				// Anyway, testing I discovered that if I subtract the lowest vertex index instead of 1
+				// from all the vertices, the geometry is created correctly
+				// So, assuming the lowest vertex usually will be 1
+				// This should work for most cases, at least for the OBJ you guys sent worked fine
+				int min = objModel.Faces.SelectMany(f => f).Min();
 
-			//		// Create a triangle
-			//		List<Curve> curveLoop = new List<Curve>
-			//{
-			//	Line.CreateBound(p1, p2),
-			//	Line.CreateBound(p2, p3),
-			//	Line.CreateBound(p3, p1)
-			//};
+				foreach (List<int> face in objModel.Faces)
+				{
+					List<XYZ> vertices = new List<XYZ>();
+					foreach (int vertexIndex in face)
+                    {
+                        XYZ vertex = objModel.Vertices[vertexIndex - min];
+                        vertices.Add(vertex);
+                    }
 
-			//		CurveLoop loop = CurveLoop.Create(curveLoop);
+					// Here I'm supposed to set the material of the face
+					// but as the task doesn't specify adding materials to the faces
+					// I'm skipping this part
+					TessellatedFace tessellatedFace = new TessellatedFace(vertices, ElementId.InvalidElementId);
+					builder.AddFace(tessellatedFace);
+				}
 
-			//		// Create a planar face
-			//		PlanarFace planarFace = PlanarFace.Create(loop);
-			//		triangles.Add(planarFace);
-			//	}
+				builder.CloseConnectedFaceSet();
+				builder.Build();
 
-			//	// Combine triangles into a solid
-			//	Solid solid = BooleanOperationsUtils.ExecuteBooleanOperationMultipleSolids(
-			//		new List<Solid>(), // Start with an empty list
-			//		triangles,
-			//		BooleanOperationsType.Union);
+                // Extract the result from the builder
+                TessellatedShapeBuilderResult result = builder.GetBuildResult();
+				IList<GeometryObject> geoObjects = new List<GeometryObject>();
+				geoObjects = result.GetGeometricalObjects().ToList();
 
-			//	return solid;
-			//}
-			//catch (Exception ex)
-			//{
-			//	TaskDialog.Show("Error", $"Failed to create solid: {ex.Message}");
-			//	return null;
-			//}
-			return null;
+                return geoObjects;
+            }
+			catch (Exception e)
+			{
+				TaskDialog taskDialog = new TaskDialog("Error");
+				taskDialog.MainInstruction = "Failed to create solid geometry from OBJ data.";
+				taskDialog.ExpandedContent = e.Message + "\n" + e.StackTrace;
+				taskDialog.Show();
+				return null;
+			}
 		}
 	}
 }

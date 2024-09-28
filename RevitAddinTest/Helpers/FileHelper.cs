@@ -9,19 +9,31 @@ namespace RevitAddinTest.Helpers
 {
 	public static class FileHelper
 	{
-		// Helper method to get file path
-		// Im using both for Obj and CSV
-		public static string GetFilePath(string title, string filter = "All Files (*.*)|*.*")
-		{
-			SaveFileDialog saveFileDialog = new SaveFileDialog
-			{
-				Filter = filter,
-				Title = title
-			};
+        public enum FileDialogType
+        {
+            Open,
+            Save
+        }
 
-			if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        // A File Dialog Helper to make it easier to handle file paths
+        public static string GetFilePath(string title, string filter = "All Files (*.*)|*.*", FileDialogType fileDialogType = FileDialogType.Open)
+        {
+			FileDialog fileDialog = null;
+            if (fileDialogType == FileDialogType.Open)
+            {
+                fileDialog = new OpenFileDialog();
+            }
+            else if (fileDialogType == FileDialogType.Save)
+            {
+                fileDialog = new SaveFileDialog();
+            }
+
+            fileDialog.Filter = filter;
+            fileDialog.Title = title;
+
+            if (fileDialog.ShowDialog() == DialogResult.OK)
 			{
-				return saveFileDialog.FileName;
+				return fileDialog.FileName;
 			}
 
 			return null;

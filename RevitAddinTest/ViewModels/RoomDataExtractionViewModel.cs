@@ -42,7 +42,7 @@ namespace RevitAddinTest.ViewModels
 			{
                 _commandData = commandData;
 
-                // Initialize service
+                // Initialize services
                 _dataExtractService = new RoomDataExtractionService(commandData);
                 _reportService = new ReportService();
 

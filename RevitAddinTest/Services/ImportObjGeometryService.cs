@@ -10,17 +10,22 @@ using System.Threading.Tasks;
 
 namespace RevitAddinTest.Services
 {
+	// As in the Room data extraction I separated the logic of importing OBJ geometry
+	// into a separate service class to make the code more modular and easier to maintain
 	public class ImportObjGeometryService
 	{
-		private readonly UIDocument _uidoc;
+		private readonly ExternalCommandData _commandData;
+        private readonly UIDocument _uidoc;
 		private readonly Document _doc;
 
 		public ImportObjGeometryService(ExternalCommandData commandData)
 		{
-			_uidoc = commandData.Application.ActiveUIDocument;
+            _commandData = commandData;
+            _uidoc = commandData.Application.ActiveUIDocument;
 			_doc = _uidoc.Document;
 		}
 
+		// Method to import OBJ geometry into Revit
 		public void ImportOBJFile(string objFilePath)
 		{
 			if (string.IsNullOrEmpty(objFilePath))
@@ -29,35 +34,55 @@ namespace RevitAddinTest.Services
 				return;
 			}
 
-			OBJGeometryModel objModel = GeometryHelper.ParseOBJFile(objFilePath);
+			// Parse OBJ file
+			List<OBJGeometryModel> objModels = GeometryHelper.ParseOBJFile(objFilePath);
 
-			if (objModel == null)
+			if (objModels == null || !objModels.Any())
 			{
 				TaskDialog.Show("Error", "Failed to parse OBJ file.");
 				return;
 			}
 
-			using (Transaction trans = new Transaction(_doc, "Import OBJ Geometry"))
+            List<Element> directShapes = new List<Element>();
+
+            using (Transaction trans = new Transaction(_doc, "Import OBJ Geometry"))
 			{
 				trans.Start();
 
-				// Create DirectShape to hold the geometry
-				DirectShape ds = DirectShape.CreateElement(_doc, new ElementId(BuiltInCategory.OST_GenericModel));
+				foreach (OBJGeometryModel objModel in objModels)
+                {
+                    // Create DirectShape to hold the geometry
+                    DirectShape directShape = DirectShape.CreateElement(_doc, new ElementId(BuiltInCategory.OST_GenericModel));
 
-				// Build Solid geometry from Mesh
-				Solid solid = GeometryHelper.CreateSolidFromOBJData(objModel);
+                    // Create the Revit Geometry Objects from the OBJ data parsed
+                    IList<GeometryObject> geometryObjects = GeometryHelper.CreateRevitGeometryObjectFromOBJData(objModel);
 
-				if (solid != null)
-				{
-					ds.SetShape(new GeometryObject[] { solid });
-				}
-				else
-				{
-					TaskDialog.Show("Error", "Failed to create solid geometry from OBJ data.");
-				}
+                    if (geometryObjects != null && geometryObjects.Any())
+                    {
+                        // Set the shape of the DirectShape using the Solid geometry
+                        directShape.SetShape(geometryObjects);
+                        directShape.Name = objModel.Name;
+
+						directShapes.Add(directShape);
+                    }
+                    else
+                    {
+                        TaskDialog.Show("Error", "Failed to create solid geometry from OBJ data.");
+                    }
+                }
 
 				trans.Commit();
 			}
+
+			if (directShapes.Any())
+            {
+				RevitAPIHelper.ZoomToElements(_commandData, directShapes);
+                TaskDialog.Show("Success", "OBJ geometry imported successfully.");
+            }
+            else
+            {
+                TaskDialog.Show("Error", "Failed to import OBJ geometry.");
+            }
 		}
 	}
 }

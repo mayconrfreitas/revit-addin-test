@@ -26,6 +26,7 @@ namespace RevitAddinTest.Commands
 				DataContext = viewModel
 			};
 
+			// Set Revit as owner of the view
 			WindowHelper.SetRevitAsOwner(view);
 
 			// Show the view as a modal dialog
